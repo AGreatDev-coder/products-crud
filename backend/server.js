@@ -47,6 +47,39 @@ let nextId = 6;
 // (R)EAD — get the full list of products
 // Try it in your browser: http://localhost:5000/products
 
+app.get("/products", (req, res) => {
+  res.json(products);
+});
+
+
+app.get("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const product = products.find(product => product.id === Number(id));
+  res.json(product);
+})
+
+// C - CREATE
+app.post("/products", (req, res) => {
+  const newProduct = req.body;
+  newProduct.id = nextId++;
+  products.push(newProduct);
+  res.json(newProduct);
+});
+
+app.put("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const updatedProduct = req.body;
+  products = products.map(product => product.id === Number(id) ? updatedProduct : product);
+  res.json(updatedProduct);
+});
+
+app.delete("/products/:id", (req, res) => {
+  const { id } = req.params;
+  products = products.filter(product => product.id !== Number(id));
+  res.json({ message: "Product deleted" });
+});
+
+
 // --- Step 4: Start the server ---
 app.listen(PORT, () => {
   console.log(`Server is running! Open http://localhost:${PORT}/products in your browser.`);
