@@ -1,0 +1,14 @@
+{
+  "name": "shelf-simple-backend",
+  "version": "1.0.0",
+  "description": "A beginner-friendly Express CRUD API for a product catalog",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.14"
+  }
+}
