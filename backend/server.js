@@ -19,7 +19,7 @@ const express = require("express"); // the web server framework
 const cors = require("cors");       // lets the React app (different port) talk to us
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // This lets our server understand JSON sent from the frontend
 app.use(express.json());
