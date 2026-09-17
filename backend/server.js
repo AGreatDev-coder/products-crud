@@ -42,43 +42,97 @@ let products = [
 // Every time we add a product, we increase it by 1.
 let nextId = 6;
 
+// Health check / welcome route
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Shelf Simple Backend API is running!",
+    endpoints: {
+      getAllProducts: "GET /products",
+      getProductById: "GET /products/:id",
+      createProduct: "POST /products",
+      updateProduct: "PUT /products/:id",
+      deleteProduct: "DELETE /products/:id"
+    }
+  });
+});
+
 // --- Step 3: The 5 CRUD routes ---
 
 // (R)EAD — get the full list of products
 // Try it in your browser: http://localhost:5000/products
-
 app.get("/products", (req, res) => {
   res.json(products);
 });
 
-
+// (R)EAD — get a single product by ID
 app.get("/products/:id", (req, res) => {
   const { id } = req.params;
-  const product = products.find(product => product.id === Number(id));
+  const product = products.find((p) => p.id === Number(id));
+  if (!product) {
+    return res.status(404).json({ error: "Product not found" });
+  }
   res.json(product);
-})
-
-// C - CREATE
-app.post("/products", (req, res) => {
-  const newProduct = req.body;
-  newProduct.id = nextId++;
-  products.push(newProduct);
-  res.json(newProduct);
 });
 
+// (C)REATE — add a new product
+app.post("/products", (req, res) => {
+  const { name, category, price, stock, color, rating } = req.body;
+  if (!name || price === undefined || price === "") {
+    return res.status(400).json({ error: "Product name and price are required." });
+  }
+
+  const newProduct = {
+    id: nextId++,
+    name: String(name).trim(),
+    category: category || "Other",
+    price: Number(price) || 0,
+    stock: Number(stock) || 0,
+    color: color || "#2B6E68",
+    rating: Math.max(1, Math.min(5, Number(rating) || 3))
+  };
+
+  products.push(newProduct);
+  res.status(201).json(newProduct);
+});
+
+// (U)PDATE — edit an existing product
 app.put("/products/:id", (req, res) => {
   const { id } = req.params;
-  const updatedProduct = req.body;
-  products = products.map(product => product.id === Number(id) ? updatedProduct : product);
+  const productId = Number(id);
+  const index = products.findIndex((p) => p.id === productId);
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Product not found" });
+  }
+
+  const existing = products[index];
+  const updatedProduct = {
+    ...existing,
+    ...req.body,
+    id: productId, // keep id intact
+    price: req.body.price !== undefined && req.body.price !== "" ? Number(req.body.price) : existing.price,
+    stock: req.body.stock !== undefined && req.body.stock !== "" ? Number(req.body.stock) : existing.stock,
+    rating: req.body.rating !== undefined ? Math.max(1, Math.min(5, Number(req.body.rating) || existing.rating)) : existing.rating
+  };
+
+  products[index] = updatedProduct;
   res.json(updatedProduct);
 });
 
+// (D)ELETE — remove a product
 app.delete("/products/:id", (req, res) => {
   const { id } = req.params;
-  products = products.filter(product => product.id !== Number(id));
-  res.json({ message: "Product deleted" });
-});
+  const productId = Number(id);
+  const index = products.findIndex((p) => p.id === productId);
 
+  if (index === -1) {
+    return res.status(404).json({ error: "Product not found" });
+  }
+
+  products = products.filter((p) => p.id !== productId);
+  res.json({ message: "Product deleted", id: productId });
+});
 
 // --- Step 4: Start the server ---
 app.listen(PORT, () => {

@@ -67,3 +67,27 @@ Open the URL it prints (usually http://localhost:5173) in your browser.
 - Try swapping the in-memory array for a real database (like SQLite or
   MongoDB) — the routes and the frontend won't need to change much, only the
   code inside each route that reads/writes the data.
+
+## Deployment Guide
+
+### 1. Deploy Backend on Render
+1. Go to [dashboard.render.com](https://dashboard.render.com) and click **New +** -> **Web Service**.
+2. Connect your GitHub repository (`products-crud`).
+3. Set the following:
+   - **Root Directory**: `backend`
+   - **Environment**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+4. Deploy the service and copy your Render URL (e.g. `https://shelf-simple-backend.onrender.com`).
+
+### 2. Deploy Frontend on Vercel
+1. Go to [vercel.com](https://vercel.com) and click **Add New...** -> **Project**.
+2. Import your GitHub repository (`products-crud`).
+3. In project settings:
+   - **Root Directory**: click **Edit** and choose `frontend`.
+   - **Framework Preset**: `Vite`
+4. Under **Environment Variables**, add:
+   - Key: `VITE_API_URL`
+   - Value: Your Render backend URL (e.g. `https://shelf-simple-backend.onrender.com`)
+5. Click **Deploy**. Any future git push to `main` will automatically trigger fresh deployments on both Render and Vercel!
+
